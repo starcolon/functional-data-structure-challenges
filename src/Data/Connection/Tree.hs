@@ -16,3 +16,16 @@ data Tree a = Tree { self  :: a
 
 sole :: a -> Tree a 
 sole n = Tree { self = n, left = NoBranch, right = NoBranch }
+
+setLeft :: Tree a -> Branch a -> Tree a 
+setLeft t b = t { left = b }
+
+setRight :: Tree a -> Branch a -> Tree a 
+setRight t b = t { right = b }
+
+trimLeft :: Tree a -> Tree a 
+trimLeft t = t `setLeft` NoBranch
+
+trimRight :: Tree a -> Tree a 
+trimRight t = t `setRight` NoBranch
+
