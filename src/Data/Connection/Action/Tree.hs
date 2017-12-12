@@ -4,7 +4,7 @@ module Data.Connection.Action.Tree where
 
 import Data.Connection.Base.Tree(
   Tree, Tree(NTree), Tree(Tree), 
-  sole, self, left, right)
+  sole, self, left, right, len)
 
 
 addTo :: Ord a => a -> Tree a -> Tree a 

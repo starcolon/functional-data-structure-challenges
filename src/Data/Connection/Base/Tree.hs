@@ -23,4 +23,9 @@ trimLeft t = t `setLeft` NTree
 trimRight :: Ord a => Tree a -> Tree a 
 trimRight t = t `setRight` NTree
 
+len :: Ord a => Tree a -> Int 
+len t = case t of 
+  NTree -> 0
+  Tree { self = n, left = l, right = r } -> 1 + (len l) + (len r)
+
 
