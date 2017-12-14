@@ -4,6 +4,7 @@ module Data.Connection.Action.Tree(
     addTo
   , removeFrom
   , toList
+  , has
   , min
   , max
   , popMin
@@ -81,6 +82,14 @@ max t = terminal right max t
 
 min :: Ord a => Tree a -> Maybe a
 min t = terminal left min t
+
+has :: Ord a => Tree a -> a -> Bool
+has t n = case t of 
+  NTree -> False
+  Tree {self=s, left=l, right=r}
+    | s==n      -> True
+    | s>n       -> l `has` n
+    | otherwise -> r `has` n
 
 
 

@@ -11,7 +11,8 @@ import Prelude hiding (min, max)
 import Data.Maybe(fromJust)
 import Data.Connection.Action.Tree(
   addTo, toList, min, max,
-  popMin, popMax, removeFrom)
+  popMin, popMax, removeFrom,
+  has)
 
 main :: IO ()
 main = hspec spec
@@ -84,4 +85,20 @@ spec = do
           l = toList t
           l' = toList tree7
       l `shouldBe` l'
+
+    it "should check if element exists" $ do
+      let b = tree7 `has` 10.75
+      b `shouldBe` True
+
+    it "should check if element exists (2)" $ do
+      let b = tree7 `has` 1.5
+      b `shouldBe` True
+
+    it "should check if element doesn't exist" $ do
+      let b = tree7 `has` 16.75
+      b `shouldBe` False
+
+    it "should check if element doesn't exist (2)" $ do
+      let b = tree7 `has` (-1.5)
+      b `shouldBe` False
     
