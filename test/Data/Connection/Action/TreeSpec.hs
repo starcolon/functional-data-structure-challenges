@@ -8,7 +8,10 @@ import Data.Connection.Base.Tree(
   sole, self, left, right, len,
   setLeft, setRight, trimLeft, trimRight)
 import Prelude hiding (min, max)
-import Data.Connection.Action.Tree(addTo, toList, min, max)
+import Data.Maybe(fromJust)
+import Data.Connection.Action.Tree(
+  addTo, toList, min, max,
+  popMin, popMax, removeFrom)
 
 main :: IO ()
 main = hspec spec
@@ -53,5 +56,18 @@ spec = do
     it "should convert tree to sorted list" $ do
       let ls = toList tree7
       ls `shouldBe` [0.1, 1.5, 3.5, 6.4, 6.5, 10.75, 16.1]
+
+    it "should pop min" $ do
+      let (m,t) = popMin tree7
+          m'    = fromJust m
+          m''   = fromJust $ min t
+      (m',m'') `shouldBe` (0.1, 1.5)
+
+    it "should pop max" $ do
+      let (m,t) = popMax tree7
+          m'    = fromJust m
+          m''   = fromJust $ max t
+      (m',m'') `shouldBe` (16.1, 10.75)
+
 
     
