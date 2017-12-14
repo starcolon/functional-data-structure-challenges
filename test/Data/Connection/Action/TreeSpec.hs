@@ -69,5 +69,19 @@ spec = do
           m''   = fromJust $ max t
       (m',m'') `shouldBe` (16.1, 10.75)
 
+    it "should remove a middle node" $ do
+      let t = 6.4 `removeFrom` tree7
+          l = toList t
+      l `shouldBe` [0.1, 1.5, 3.5, 6.5, 10.75, 16.1]
 
+    it "should remove multiple nodes" $ do
+      let t = removeFrom 1.5 $ removeFrom 10.75 $ removeFrom 6.5 $ removeFrom 16.1 tree7
+          l = toList t
+      l `shouldBe` [0.1, 3.5, 6.4]
+
+    it "should remain unchanged when remove a node which doesn't exist" $ do
+      let t = removeFrom 3.4 tree7
+          l = toList t
+          l' = toList tree7
+      l `shouldBe` l'
     
