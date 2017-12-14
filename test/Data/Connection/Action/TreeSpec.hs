@@ -7,7 +7,8 @@ import Data.Connection.Base.Tree(
   Tree, Tree(NTree), Tree(Tree), 
   sole, self, left, right, len,
   setLeft, setRight, trimLeft, trimRight)
-import Data.Connection.Action.Tree(addTo, toList)
+import Prelude hiding (min, max)
+import Data.Connection.Action.Tree(addTo, toList, min, max)
 
 main :: IO ()
 main = hspec spec
@@ -29,19 +30,28 @@ spec = do
           t1 = t `setLeft` (sole 1)
           t2 = t1 `setRight` (sole 15)
           ll = len t2
-      ll `shouldBe` 3 -- TAOTODO: Also check for values
+      ll `shouldBe` 3
 
-    it "Length of sole tree is 1" $ do
+    it "length of sole tree is 1" $ do
       let l = len $ sole 7
       l `shouldBe` 1
 
-    it "Should create a tree of length 7" $ do
+    it "should create a tree of length 7" $ do
       let l = len $ tree7
       l `shouldBe` 7
 
-    it "Should convert tree to sorted list" $ do
+    it "should find minima" $ do
+      let m = min $ tree7
+          e = Just 0.1
+      m `shouldBe` e
+
+    it "should find maxima" $ do
+      let m = max $ tree7
+          e = Just 16.1
+      m `shouldBe` e
+
+    it "should convert tree to sorted list" $ do
       let ls = toList tree7
       ls `shouldBe` [0.1, 1.5, 3.5, 6.4, 6.5, 10.75, 16.1]
 
-    it "Length of multi-level tree" $ do
-      0 `shouldBe` 0 -- TAOTODO:
+    
