@@ -4,11 +4,14 @@ module Data.Connection.Action.Tree(
     addTo
   , removeFrom
   , toList
+  , depth
   , has
   , min
   , max
   , popMin
   , popMax
+  , (+:+)
+  , (-:-)
   ) where
 
 import Data.Connection.Base.Tree(
@@ -94,23 +97,35 @@ has t n = case t of
 rebalance :: Ord a => Tree a -> Tree a 
 rebalance t = error "TAOTODO: not implemented"
 
--- Merge two trees with duplicates
+depth :: Ord a => Tree a -> Int 
+depth t = case t of 
+  NTree -> 0
+  Tree {self=s, left=l, right=r} ->
+    let [d1,d2] = map depth [l,r]
+      in 1 + (if d1>d2 then d1 else d2)
+
+-- "with"
 (+:+) :: Ord a => Tree a -> Tree a -> Tree a 
 (+:+) t1 t2 = case (t1,t2) of
   (NTree,_)   -> t2
   (_,NTree)   -> t1
-  otherwise -> 
+  otherwise   -> 
     let 
-      (s1,s2) = (self t1, self t2)
-      (l1,l2) = (left l1, left l2)
-      (r1,r2) = (right r1, right r2)
-    in if s1 > s2 then t1 {left = (addTo s2 l1) +:+ l2} +:+ r2
-      else t1 {right = addTo s2 r1} +:+ l1 +:+ r2
+        [s1,s2] = map self [t1,t2]
+        [l1,l2] = map left [t1,t2]
+        [r1,r2] = map right [t1,t2]
+    in if s1 > s2
+      then t1 {left = (addTo s2 l1) +:+ l2} +:+ r2
+      else t1 {right = (addTo s2 r1)} +:+ l2 +:+ r2
 
 
--- Remove elements 
+-- "without"
 (-:-) :: Ord a => Tree a -> Tree a -> Tree a
-(-:-) t1 t2 = error "TAOTODO:"
+(-:-) t1 t2 = case (t1,t2) of 
+  (NTree,_) -> t2
+  (_,NTree) -> t1
+  otherwise -> ((removeFrom (self t2) t1) -:- (left t2)) -:- (right t2)
+          
 
 
 

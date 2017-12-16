@@ -12,10 +12,14 @@ import Data.Maybe(fromJust)
 import Data.Connection.Action.Tree(
   addTo, toList, min, max,
   popMin, popMax, removeFrom,
+  (+:+), (-:-),
   has)
 
 main :: IO ()
 main = hspec spec
+
+tree3 :: Tree Double 
+tree3 = addTo 7.45 $ addTo 2.25 (sole 0.0)
 
 tree7 :: Tree Double
 tree7 = addTo 6.5 $ addTo 10.75 $ addTo 0.1 $ addTo 1.5 $ addTo 6.4 $ addTo 3.5 (sole 16.1)
@@ -101,4 +105,22 @@ spec = do
     it "should check if element doesn't exist (2)" $ do
       let b = tree7 `has` (-1.5)
       b `shouldBe` False
-    
+
+    it "should merge a tree with empty tree" $ do
+      let t = tree7 +:+ NTree
+          l = toList tree7
+          l' = toList t
+      l `shouldBe` l'
+
+    it "should merge two trees" $ do
+      let l = toList $ tree7 +:+ tree3 
+      l `shouldBe` [0.0, 0.1, 1.5, 2.25, 3.5, 6.4, 6.5, 7.45, 10.75, 16.1]
+
+    it "should merge large trees" $ do
+      let l = toList $ tree7 +:+ tree7 +:+ tree7 
+      l `shouldBe` [0.1, 0.1, 0.1, 1.5, 1.5, 1.5, 3.5, 3.5, 3.5, 6.4, 6.4, 6.4, 6.5, 6.5, 6.5, 10.75, 10.75, 10.75, 16.1, 16.1, 16.1]
+
+    it "should remove trees" $ do
+      let t = addTo 0.1 $ addTo 0.0 $ addTo 10.75 $ sole 16.1
+          l = toList $ tree7 -:- t
+      l `shouldBe` [1.5, 3.5, 6.4, 6.5]
