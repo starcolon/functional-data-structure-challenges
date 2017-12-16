@@ -10,6 +10,7 @@ module Data.Connection.Action.Tree(
   , max
   , popMin
   , popMax
+  , rebalance
   , (+:+)
   , (-:-)
   ) where
@@ -29,6 +30,11 @@ addTo n t = case t of
       t {left = n `addTo` l}
     else
       t {right = n `addTo` r}
+
+addListTo :: Ord a => [a] -> Tree a -> Tree a 
+addListTo ns t = case ns of 
+  [] -> t
+  x:xs -> xs `addListTo` (x `addTo` t)
 
 removeFrom :: Ord a => a -> Tree a -> Tree a
 removeFrom n t = case t of 
@@ -95,7 +101,16 @@ has t n = case t of
     | otherwise -> r `has` n
 
 rebalance :: Ord a => Tree a -> Tree a 
-rebalance t = error "TAOTODO: not implemented"
+rebalance t = 
+  let dl = depth $ left t
+      dr = depth $ right t
+    in if abs(dl - dr)<=1 then t
+    else 
+      let l = toList t
+          m = l !! (div (length l -1) 2)
+          l' = filter (/=m) l
+          t0 = sole m
+      in addListTo l' t0
 
 depth :: Ord a => Tree a -> Int 
 depth t = case t of 
