@@ -91,6 +91,27 @@ has t n = case t of
     | s>n       -> l `has` n
     | otherwise -> r `has` n
 
+rebalance :: Ord a => Tree a -> Tree a 
+rebalance t = error "TAOTODO: not implemented"
+
+-- Merge two trees with duplicates
+(+:+) :: Ord a => Tree a -> Tree a -> Tree a 
+(+:+) t1 t2 = case (t1,t2) of
+  (NTree,_)   -> t2
+  (_,NTree)   -> t1
+  otherwise -> 
+    let 
+      (s1,s2) = (self t1, self t2)
+      (l1,l2) = (left l1, left l2)
+      (r1,r2) = (right r1, right r2)
+    in if s1 > s2 then t1 {left = (addTo s2 l1) +:+ l2} +:+ r2
+      else t1 {right = addTo s2 r1} +:+ l1 +:+ r2
+
+
+-- Remove elements 
+(-:-) :: Ord a => Tree a -> Tree a -> Tree a
+(-:-) t1 t2 = error "TAOTODO:"
+
 
 
   
