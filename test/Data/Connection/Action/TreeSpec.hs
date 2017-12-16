@@ -131,6 +131,10 @@ spec = do
           d = map depth [t0,t1]
       d `shouldBe` [2, 5]
 
+    it "sole tree has depth of 1" $ do
+      let d = depth $ sole 4
+      d `shouldBe` 1
+
     it "should rebalance an unbalanced tree" $ do
       let t0 = addTo 1 $ addTo 3 $ sole 2
           t1 = addTo 15 $ addTo 9 $ addTo 7 $ addTo 6 t0
