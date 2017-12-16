@@ -2,6 +2,8 @@
 
 module Data.Connection.Action.Tree(
     addTo
+  , addListTo
+  , fromList
   , removeFrom
   , toList
   , depth
@@ -35,6 +37,9 @@ addListTo :: Ord a => [a] -> Tree a -> Tree a
 addListTo ns t = case ns of 
   [] -> t
   x:xs -> xs `addListTo` (x `addTo` t)
+
+fromList :: Ord a => [a] -> Tree a 
+fromList ns = addListTo ns NTree
 
 removeFrom :: Ord a => a -> Tree a -> Tree a
 removeFrom n t = case t of 

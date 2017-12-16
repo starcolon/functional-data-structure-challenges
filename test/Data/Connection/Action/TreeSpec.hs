@@ -13,7 +13,8 @@ import Data.Connection.Action.Tree(
   addTo, toList, min, max,
   popMin, popMax, removeFrom,
   (+:+), (-:-),
-  has, depth, rebalance)
+  has, depth, rebalance,
+  fromList)
 
 main :: IO ()
 main = hspec spec
@@ -139,5 +140,15 @@ spec = do
       let t0 = addTo 1 $ addTo 3 $ sole 2
           t1 = addTo 15 $ addTo 9 $ addTo 7 $ addTo 6 t0
           t2 = rebalance t1
-          d = map depth [left t1, right t1, left t2, right t2]
-      d `shouldBe` [1,5,3,3]
+          dl = depth $ left t2
+          dr = depth $ right t2
+          d = abs $ dl - dr
+      d `shouldSatisfy` (<=1)
+
+    it "should create a tree of huge list then balance" $ do 
+      let t0 = fromList [1..444]
+          t1 = rebalance t0
+          dl = depth $ left t1
+          dr = depth $ right t1
+          absdiff = abs $ dl - dr
+      absdiff `shouldSatisfy` (<=1)
