@@ -13,7 +13,7 @@ import Data.Connection.Action.Tree(
   addTo, toList, min, max,
   popMin, popMax, removeFrom,
   (+:+), (-:-),
-  has)
+  has, depth)
 
 main :: IO ()
 main = hspec spec
@@ -124,3 +124,9 @@ spec = do
       let t = addTo 0.1 $ addTo 0.0 $ addTo 10.75 $ sole 16.1
           l = toList $ tree7 -:- t
       l `shouldBe` [1.5, 3.5, 6.4, 6.5]
+
+    it "should find the depth of a tree" $ do
+      let t0 = addTo 1 $ addTo 3 $ sole 2
+          t1 = addTo 9 $ addTo 7 $ addTo 6 t0
+          d = [depth t0, depth t1]
+      d `shouldBe` [2, 5]
