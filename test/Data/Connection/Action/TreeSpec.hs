@@ -13,7 +13,7 @@ import Data.Connection.Action.Tree(
   addTo, toList, min, max,
   popMin, popMax, removeFrom,
   (+:+), (-:-),
-  has, depth, rebalance,
+  has, depth, rebalance, when,
   fromList)
 
 main :: IO ()
@@ -152,3 +152,7 @@ spec = do
           dr = depth $ right t1
           absdiff = abs $ dl - dr
       absdiff `shouldSatisfy` (<=1)
+
+    it "should filter a tree by conditional function" $ do 
+      let l = toList $ when tree7 (>3.5) 
+      l `shouldBe` [6.4, 6.5, 10.75, 16.1]

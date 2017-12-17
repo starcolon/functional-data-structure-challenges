@@ -13,6 +13,7 @@ module Data.Connection.Action.Tree(
   , popMin
   , popMax
   , rebalance
+  , when
   , (+:+)
   , (-:-)
   ) where
@@ -145,6 +146,19 @@ depth t = case t of
   (NTree,_) -> t2
   (_,NTree) -> t1
   otherwise -> ((removeFrom (self t2) t1) -:- (left t2)) -:- (right t2)
+
+when :: Ord a => Tree a -> (a -> Bool) -> Tree a 
+when t f = case t of 
+  NTree -> NTree 
+  Tree {self=s, left=l, right=r} ->
+    if f s then t {left = when l f, right = when r f}
+    else when (removeSelf t) f
+
+mapTree ::( Ord a, Ord b) => Tree a -> (a -> b) -> Tree b
+mapTree t f = error "TAOTODO:"
+
+-- printTree :: Ord a => Tree a -> IO
+-- printTree t = error "TAOTODO:"
           
 
 
