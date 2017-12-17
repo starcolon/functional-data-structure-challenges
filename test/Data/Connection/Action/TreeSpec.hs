@@ -14,7 +14,7 @@ import Data.Connection.Action.Tree(
   popMin, popMax, removeFrom,
   (+:+), (-:-),
   has, depth, rebalance, when,
-  fromList)
+  fromList, intersect)
 
 main :: IO ()
 main = hspec spec
@@ -24,6 +24,9 @@ tree3 = addTo 7.45 $ addTo 2.25 (sole 0.0)
 
 tree7 :: Tree Double
 tree7 = addTo 6.5 $ addTo 10.75 $ addTo 0.1 $ addTo 1.5 $ addTo 6.4 $ addTo 3.5 (sole 16.1)
+
+treeTuples :: Tree (Int, Int)
+treeTuples = addTo (-1,5) $ addTo (-1,0) $ addTo (1,12 )$ addTo (0,5) (sole (0,0))
 
 spec :: Spec
 spec = do
@@ -156,3 +159,17 @@ spec = do
     it "should filter a tree by conditional function" $ do 
       let l = toList $ when tree7 (>3.5) 
       l `shouldBe` [6.4, 6.5, 10.75, 16.1]
+
+    it "should filter a tree by conditional function (2)" $ do
+      let l = toList $ when treeTuples (\x -> snd x == 0)
+      l `shouldBe` [(-1,0), (0,0)]
+
+    it "should find intersection with empty tree" $ do
+      let l = toList $ NTree `intersect` tree7
+      l `shouldBe` []
+
+    it "should find intersection between two trees" $ do
+      let t1 = addTo "Z" $ addTo "C" $ addTo "B" $ sole "A"
+          t2 = addTo "Z" $ addTo "V" $ addTo "A" $ sole "K"
+          l = toList $ t1 `intersect` t2
+      l `shouldBe` ["A","Z"]

@@ -14,6 +14,7 @@ module Data.Connection.Action.Tree(
   , popMax
   , rebalance
   , when
+  , intersect
   , (+:+)
   , (-:-)
   ) where
@@ -156,6 +157,18 @@ when t f = case t of
 
 mapTree ::( Ord a, Ord b) => Tree a -> (a -> b) -> Tree b
 mapTree t f = error "TAOTODO:"
+
+distinct :: Ord a => Tree a -> Tree a 
+distinct t = error "TAOTODO:"
+
+intersect :: Ord a => Tree a -> Tree a -> Tree a
+intersect t1 t2 = case (t1,t2) of 
+  (NTree,_) -> NTree
+  (_,NTree) -> NTree
+  otherwise -> if t1 `has` s2 
+      then (sole s2) +:+ (t1 `intersect` l2) +:+ (t1 `intersect` r2)
+      else (t1 `intersect` l2) +:+ (t1 `intersect` r2)
+          where (s2,l2,r2) = (self t2, left t2, right t2)
 
 -- printTree :: Ord a => Tree a -> IO
 -- printTree t = error "TAOTODO:"
