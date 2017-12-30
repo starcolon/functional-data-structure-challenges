@@ -14,7 +14,7 @@ import Data.Connection.Action.Tree(
   popMin, popMax, removeFrom,
   (+:+), (-:-),
   has, depth, rebalance, when,
-  fromList, intersect)
+  fromList, intersect, mapTree)
 
 main :: IO ()
 main = hspec spec
@@ -173,3 +173,7 @@ spec = do
           t2 = addTo "Z" $ addTo "V" $ addTo "A" $ sole "K"
           l = toList $ t1 `intersect` t2
       l `shouldBe` ["A","Z"]
+
+    it "should map tree" $ do 
+      let l = toList $ mapTree tree3 (*10)
+      l `shouldBe` [0, 22.5, 74.5]

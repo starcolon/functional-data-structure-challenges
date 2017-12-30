@@ -15,6 +15,7 @@ module Data.Connection.Action.Tree(
   , rebalance
   , when
   , intersect
+  , mapTree
   , (+:+)
   , (-:-)
   ) where
@@ -156,7 +157,9 @@ when t f = case t of
     else when (removeSelf t) f
 
 mapTree ::( Ord a, Ord b) => Tree a -> (a -> b) -> Tree b
-mapTree t f = error "TAOTODO:"
+mapTree t f = case t of 
+  NTree -> NTree
+  Tree {self=s, left=l, right=r} -> Tree {self=f s, left=mapTree l f, right=mapTree r f}
 
 distinct :: Ord a => Tree a -> Tree a 
 distinct t = error "TAOTODO:"
@@ -172,6 +175,7 @@ intersect t1 t2 = case (t1,t2) of
 
 -- printTree :: Ord a => Tree a -> IO
 -- printTree t = error "TAOTODO:"
+
           
 
 
