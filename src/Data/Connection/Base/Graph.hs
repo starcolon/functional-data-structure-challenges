@@ -1,9 +1,13 @@
 module Data.Connection.Base.Graph where
 
-data Ord a => G a = NG |
-              G { self  :: a
-                , nodes :: [G a]
-                }
+import Foreign.Ptr
 
-sole :: Ord a => a -> G a 
-sole n = error "TAOTODO:"
+data Ord a => Node a = NNode | Node a
+
+data Ord a => Link a = NLink | Link { ab :: Ptr (Node a), an :: Ptr (Node a), w :: a }
+
+data Ord a => Gr a =
+              Gr { nd :: [Node a]
+                 , ln :: [Link a]
+                 }
+
