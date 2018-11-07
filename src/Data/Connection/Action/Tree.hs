@@ -1,4 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Data.Connection.Action.Tree(
     addTo
@@ -173,10 +175,6 @@ intersect t1 t2 = case (t1,t2) of
       else (t1 `intersect` l2) +:+ (t1 `intersect` r2)
           where (s2,l2,r2) = (self t2, left t2, right t2)
 
--- printTree :: Ord a => Tree a -> IO
--- printTree t = error "TAOTODO:"
-
-          
 
 
 

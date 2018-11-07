@@ -7,7 +7,6 @@ data Ord a => Tree a = NTree |
                    , right :: Tree a 
                    }
 
-
 sole :: Ord a => a -> Tree a 
 sole n = Tree { self = n, left = NTree, right = NTree }
 
