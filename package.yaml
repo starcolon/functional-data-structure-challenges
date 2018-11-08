@@ -24,6 +24,7 @@ dependencies:
 - hspec
 - hspec-discover
 - QuickCheck
+- containers >= 0.5.7.1
 
 library:
   source-dirs: src

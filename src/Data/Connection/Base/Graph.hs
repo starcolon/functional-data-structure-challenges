@@ -1,13 +1,14 @@
 module Data.Connection.Base.Graph where
 
-import Foreign.Ptr
+import qualified Data.Map as Map
 
 data Ord a => Node a = NNode | Node a
 
-data Ord a => Link a = NLink | Link { ab :: Ptr (Node a), an :: Ptr (Node a), w :: a }
+data Ord a => Link a = NLink | Link { mag :: a, from :: Int, to :: Int }
 
-data Ord a => Gr a =
-              Gr { nd :: [Node a]
-                 , ln :: [Link a]
-                 }
+data Ord a => Gr a = Gr (Map.Map Int (Node a))
+
+-- Graph size by number of nodes
+gsize :: Ord a => Gr a -> Int
+gsize g = error "TAOTODO:"
 
