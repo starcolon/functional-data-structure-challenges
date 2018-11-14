@@ -15,9 +15,17 @@ data Ord a => Gr a = Gr (Map.Map Int (Node a))
 gsize :: Ord a => Gr a -> Int
 gsize g = error "TAOTODO:"
 
+-- Add a new node
+(++) :: Ord a => Gr a -> Node a -> Gr a 
+(++) g n = error "TAOTODO:"
+
+-- Add a new link 
+(**) :: Ord a => Gr a -> Link a -> Gr a
+(**) g l = error "TAOTODO:"
+
 -- Query links between two nodes
-between :: Ord a => Gr a -> Route -> Maybe (Link a)
-between g (Route i j) = error "TAOTODO:"
+paths :: Ord a => Gr a -> Route -> Maybe (Link a)
+paths g (Route i j) = error "TAOTODO:"
 
 -- Find all possible routes from a node to another
 traverse :: Ord a => Gr a -> Route -> [[Link a]]
