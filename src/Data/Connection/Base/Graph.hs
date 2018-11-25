@@ -17,9 +17,13 @@ size (Gr g) = S.size $ g
 fromSet :: S.Set (Node a) -> Gr a 
 fromSet s = Gr s
 
+-- Create a unit node
+unitNode :: a -> Node a 
+unitNode v = Node {value = 1, Data.Connection.Base.Graph.id = v, out = M.empty}
+
 -- Create a unit graph
 unit :: a -> Gr a 
-unit v = Gr (S.singleton v)
+unit v = Gr (S.singleton $ unitNode v)
 
 -- Apply new links to the graph.
 -- The method is idempotent.
