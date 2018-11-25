@@ -13,7 +13,7 @@ main :: IO ()
 main = hspec spec
 
 g5 :: Gr Double 
-g5 = Gr (Map.Map )
+g5 = Gr (Map.Map ) -- TAOTODO:
 
 spec :: Spec
 spec = do
