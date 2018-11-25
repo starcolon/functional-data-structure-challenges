@@ -17,6 +17,10 @@ size (Gr g) = S.size $ g
 fromSet :: S.Set (Node a) -> Gr a 
 fromSet s = Gr s
 
+-- Create a unit graph
+unit :: a -> Gr a 
+unit v = Gr (S.singleton v)
+
 -- Apply new links to the graph.
 -- The method is idempotent.
 link :: Gr a -> Link a -> Gr a 
