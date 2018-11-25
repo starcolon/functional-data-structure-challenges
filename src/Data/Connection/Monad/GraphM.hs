@@ -9,4 +9,6 @@ instance Functor Gr where
 instance Applicative Gr where
   pure = unit
 
-instance Monad Gr
+-- Graph is flatmappable
+instance Monad Gr where
+  (>>=) = error "TAOTODO:"
