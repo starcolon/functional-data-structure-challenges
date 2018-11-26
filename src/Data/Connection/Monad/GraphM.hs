@@ -1,14 +1,14 @@
 module Data.Connection.Monad.GraphM where
 
-import Data.Connection.Base.Graph(Gr, Node, Link, mapGr, unit)
+import Data.Connection.Base.Graph(G, E, V, mapG, pureG)
 
 -- Graph is mappable
-instance Functor Gr where
-  fmap = mapGr
+instance Functor G where
+  fmap = mapG
 
-instance Applicative Gr where
-  pure = unit
+instance Applicative G where
+  pure = pureG
 
 -- Graph is flatmappable
-instance Monad Gr where
+instance Monad G where
   (>>=) = error "TAOTODO:"
