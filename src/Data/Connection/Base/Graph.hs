@@ -4,11 +4,11 @@ import qualified Data.Map as M
 
 -- Graph of type [v] implements Vertices of type [v]
 
-data G v = G [V v] (M.Map v (E v)) deriving Show-- TAOTODO: Should implement a better tree-based list of [V v]
+data G v = G [V v] (M.Map v (E v)) deriving (Show,Eq) -- TAOTODO: Should implement a better tree-based list of [V v]
 
-data V v = NV | V v Double deriving Show
+data V v = NV | V v Double deriving (Show,Eq)
 
-data E v = NE | E v v Double deriving Show
+data E v = NE | E v v Double deriving (Show,Eq)
 
 size :: Ord v => G v -> Int
 size (G ns _) = length $ ns
@@ -32,4 +32,9 @@ mapG f (G vs m) = G [fv f n | n <- vs] (M.fromDistinctAscList $ [(f a, fe f b) |
 
 -- Create a unit graph with an initial vertex
 pureG :: v -> G v
-pureG v = error "TAOTODO:"
+pureG v = G vs m
+  where 
+    vs = [V v 1]
+    m  = M.singleton v NE
+
+
