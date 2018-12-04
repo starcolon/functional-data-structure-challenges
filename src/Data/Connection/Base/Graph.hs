@@ -18,14 +18,17 @@ size (G ns _) = length $ ns
 fv :: (v -> v') -> V v -> V v'
 fv f v = case v of 
   NV  -> NV
-  V a d -> error "TAOTODO:"
+  V a d -> V a' d where a' = f a
 
 -- Associativity of edge
 -- f (E v) = E (f e)
 fe :: (v -> v') -> E v -> E v'
 fe f e = case e of 
   NE    -> NE
-  E a b d -> error "TAOTODO:"
+  E a b d -> E a' b' d 
+    where 
+      a' = f a
+      b' = f b
 
 mapG :: (v -> v') -> G v -> G v'
 mapG f (G vs m) = G [fv f n | n <- vs] (M.fromDistinctAscList $ [(f a, fe f b) | (a,b) <- M.toList m])
