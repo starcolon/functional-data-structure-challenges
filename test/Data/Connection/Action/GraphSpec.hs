@@ -12,14 +12,20 @@ import qualified Data.Map as Map
 main :: IO ()
 main = hspec spec
 
-g5 :: Gr Double 
-g5 = Gr (Map.Map ) -- TAOTODO:
+g3 :: Gr String 
+g3 = Gr [(V "a" 1) (V "b" 1) (V "c" 15)] NE
 
 spec :: Spec
 spec = do
   describe "Basic Graph functions" $ do
 
     it "get size of a graph" $ do 
+      error "TAOTODO:"
+
+    it "check the existence of vertex" $ do
+      error "TAOTODO:"
+
+    it "merge two graphs" $ do 
       error "TAOTODO:"
 
     it "get all paths from A to B" $ do 
