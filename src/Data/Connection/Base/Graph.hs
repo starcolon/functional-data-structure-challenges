@@ -4,7 +4,7 @@ import qualified Data.Map as M
 
 -- Graph of type [v] implements Vertices of type [v]
 
-data G v = G [V v] (M.Map v (E v)) deriving (Show,Eq) -- TAOTODO: Should implement a better tree-based list of [V v]
+data G v = G [V v] (M.Map v [E v]) deriving (Show,Eq) -- TAOTODO: Should implement a better tree-based list of [V v]
 
 data V v = NV | V v Double deriving (Show,Eq)
 
@@ -44,8 +44,8 @@ ensureVertex (V a d) (G vs m) = case M.lookup a m of
     where 
       v'  = V a d
       vs' = v':vs
-      m'  = M.insert a NE m
-  Just es -> G vs m
+      m'  = M.insert a [] m
+  Just _ -> G vs m
 
 similarEdge :: Ord v => E v -> E v -> Bool
 similarEdge NE NE = True
@@ -60,25 +60,33 @@ ensureEdge (E a b d) (G vs m) = case M.lookup a m of
   Just es -> 
     if any (\e -> e `isLinkTo` b) es
     -- Replace the old edge with the new one
-    then let e' = E a b d
-      in G vs (M.insert a es' m)
-        where es' = [if similarEdge e e' then e' else e |e <- es]
+    then 
+      let e' = E a b d
+          es' = [if similarEdge e e' then e' else e |e <- es]
+          m'  = M.insert a es' m
+        in G vs m'
     -- Add a new edge
-    else G vs (M.fromDistinctAscList $ (E a b d):es)
+    else
+      let es' = (E a b d):es
+          m'  = M.insert a es' m
+        in G vs m'
 
-isLinkTo :: E v -> v -> Bool
+isLinkTo :: Eq v => E v -> v -> Bool
 isLinkTo NE _ = False
 isLinkTo (E a b _) a' = a == a'
 
 mapG :: (v -> v') -> G v -> G v'
-mapG f (G vs m) = G [fv f n | n <- vs] (M.fromDistinctAscList $ [(f a, fe f b) | (a,b) <- M.toList m])
+mapG f (G vs m) = 
+  let vs' = [fv f n | n <- vs]
+      m' = (M.fromDistinctAscList $ [(f a, [fe f b | b <- bs]) | (a,bs) <- M.toList m]) 
+  in G vs' m'
 
 -- Create a unit graph with an initial vertex
 pureG :: v -> G v
 pureG v = G vs m
   where 
     vs = [V v 1]
-    m  = M.singleton v NE
+    m  = M.singleton v []
 
 flatMapG :: G v -> (v -> G v') -> G v'
 flatMapG (G vs m) f = error "TAOTODO:"
