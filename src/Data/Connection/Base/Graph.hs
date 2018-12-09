@@ -30,9 +30,18 @@ fe f e = case e of
       a' = f a
       b' = f b
 
+-- Idempotently insert a vertex to the list
+putIn :: Eq a => V a -> [V a] -> [V a]
+putIn v [] = [v]
+putIn (V a d) ((V a' d'):vs) = 
+  if a==a' 
+  then (V a' d'):vs
+  else (V a d):(putIn (V a d) vs)
+
 -- Join two graphs
-(<+>) :: G v -> G v -> G v
-(<+>) (G va ma) (G vb mb) = error "TAOTODO:"
+(<+>) :: Ord v => G v -> G v -> G v
+(<+>) (G va ma) (G vb mb) = G vs (M.union ma mb)
+  where vs = va >>= \a -> putIn a vb
 
 has :: Ord v => G v -> v -> Bool
 has (G vs m) v = M.member v m
