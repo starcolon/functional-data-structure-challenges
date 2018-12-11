@@ -34,7 +34,7 @@ spec = do
       (size g3) `shouldBe` 3
 
     it "checks the existence of vertex" $ do
-      (g3 `has` "b") `shouldBe` True
+      (g3 `has` "4") `shouldBe` True
 
     it "checks the existence of vertex (negative)" $ do
       (g3 `has` "x") `shouldBe` False
