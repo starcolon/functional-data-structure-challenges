@@ -4,14 +4,14 @@ import qualified Data.Map as M
 
 -- Graph of type [v] implements Vertices of type [v]
 
-data G v = G [V v] (M.Map v [E v]) deriving (Show,Eq) -- TAOTODO: Should implement a better tree-based list of [V v]
+data G v = G (M.Map v (V v)) (M.Map v [E v]) deriving (Show,Eq)
 
 data V v = NV | V v Double deriving (Show,Eq)
 
 data E v = NE | E v v Double deriving (Show,Eq)
 
 size :: Ord v => G v -> Int
-size (G ns _) = length $ ns
+size (G n _) = M.size n
 
 -- Associativity of vertex
 -- f (V v) = V (f v)
@@ -30,31 +30,22 @@ fe f e = case e of
       a' = f a
       b' = f b
 
--- Idempotently insert a vertex to the list
-putIn :: Eq a => V a -> [V a] -> [V a]
-putIn v [] = [v]
-putIn (V a d) ((V a' d'):vs) = 
-  if a==a' 
-  then (V a' d'):vs
-  else (V a d):(putIn (V a d) vs)
-
 -- Join two graphs
 (<+>) :: Ord v => G v -> G v -> G v
-(<+>) (G va ma) (G vb mb) = G vs (M.union ma mb)
-  where vs = va >>= \a -> putIn a vb
+(<+>) (G va ma) (G vb mb) = G (M.union va vb) (M.union ma mb)
 
 has :: Ord v => G v -> v -> Bool
-has (G vs m) v = M.member v m
+has (G n m) v = M.member v m
 
 ensureVertex :: Ord v => V v -> G v -> G v
 ensureVertex NV g = g
-ensureVertex (V a d) (G vs m) = case M.lookup a m of
-  Nothing -> G vs' m' 
+ensureVertex (V a d) (G n m) = case M.lookup a m of
+  Nothing -> G n' m' 
     where 
-      v'  = V a d
-      vs' = v':vs
-      m'  = M.insert a [] m
-  Just _ -> G vs m
+      v' = V a d
+      n' = M.insert a v' n
+      m' = M.insert a [] m
+  Just _ -> G n m
 
 similarEdge :: Ord v => E v -> E v -> Bool
 similarEdge NE NE = True
@@ -85,19 +76,19 @@ isLinkTo NE _ = False
 isLinkTo (E a b _) a' = a == a'
 
 mapG :: (v -> v') -> G v -> G v'
-mapG f (G vs m) = 
-  let vs' = [fv f n | n <- vs]
-      m' = (M.fromDistinctAscList $ [(f a, [fe f b | b <- bs]) | (a,bs) <- M.toList m]) 
-  in G vs' m'
+mapG f (G n m) = 
+  let n' = M.fromDistinctAscList $ [(f a, V (f a') d) | (a,V a' d) <- M.toList n]
+      m' = M.fromDistinctAscList $ [(f a, [fe f b | b <- bs]) | (a,bs) <- M.toList m]
+  in G n' m'
 
 -- Create a unit graph with an initial vertex
 pureG :: v -> G v
-pureG v = G vs m
+pureG v = G n m
   where 
-    vs = [V v 1]
+    n = M.singleton v (V v 1)
     m  = M.singleton v []
 
 flatMapG :: G v -> (v -> G v') -> G v'
-flatMapG (G vs m) f = error "TAOTODO:"
+flatMapG (G n m) f = error "TAOTODO:"
 
 
