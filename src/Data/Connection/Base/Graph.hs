@@ -1,38 +1,42 @@
 module Data.Connection.Base.Graph where
 
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 -- Graph of type [v] implements Vertices of type [v]
 
-data G v = G (M.Map v (V v)) (M.Map v [E v]) deriving (Show,Eq)
+data G v = G (M.Map v (V v)) deriving (Show,Eq)
 
-data V v = NV | V v Double deriving (Show,Eq)
-
-data E v = NE | E v v Double deriving (Show,Eq)
+-- Vertex consists of a value [v], weight, and a Map of edges
+data V v = NV | V v Double (M.Map v Double)  deriving (Show,Eq)
 
 size :: Ord v => G v -> Int
-size (G n _) = M.size n
+size (G n) = M.size n
 
 -- Associativity of vertex
 -- f (V v) = V (f v)
 fv :: (v -> v') -> V v -> V v'
 fv f v = case v of 
   NV  -> NV
-  V a d -> V a' d where a' = f a
-
--- Associativity of edge
--- f (E v) = E (f e)
-fe :: (v -> v') -> E v -> E v'
-fe f e = case e of 
-  NE    -> NE
-  E a b d -> E a' b' d 
+  V a d m -> V a' d m'
     where 
       a' = f a
-      b' = f b
+      m' = M.fromDistinctAscList $ [(f k,v) | (k,v) <- M.toList m]
 
 -- Join two graphs
 (<+>) :: Ord v => G v -> G v -> G v
-(<+>) (G va ma) (G vb mb) = G (M.union va vb) (M.union ma mb)
+(<+>) (G va) (G vb) = G (M.fromDistinctAscList $ [(v, blendVertices v va vb) | v <- S.toList keys])
+  where 
+    keys = S.fromList $ (M.keys va) ++ (M.keys vb)
+
+-- Blend the specified vertex from the two maps
+blendVertices :: Ord v => v -> M.Map v (V v) -> M.Map v (V v) -> V v
+blendVertices a ma mb = case (M.lookup a ma, M.lookup a mb) of 
+  (Nothing, Nothing) -> NV
+  (Nothing, v) -> v
+  (v, Nothing) -> v
+  -- NOTE: following v1,d1 and v2,d2 are identical in all possible cases
+  (Just V v1 d1 m1, Just v2 d2 m2) -> V v1 d1 (M.union m1 m2)
 
 has :: Ord v => G v -> v -> Bool
 has (G n m) v = M.member v m
@@ -46,34 +50,6 @@ ensureVertex (V a d) (G n m) = case M.lookup a m of
       n' = M.insert a v' n
       m' = M.insert a [] m
   Just _ -> G n m
-
-similarEdge :: Ord v => E v -> E v -> Bool
-similarEdge NE NE = True
-similarEdge (E a b _) (E a' b' _) = a==a' && b==b'
-
-ensureEdge :: Ord v => E v -> G v -> G v
-ensureEdge NE g = g
-ensureEdge (E a b d) (G vs m) = case M.lookup a m of
-  Nothing -> ensureEdge (E a b d) g' 
-    -- Insert a unit vertex if doesn't exist
-    where g' = ensureVertex (V a 1) (G vs m)
-  Just es -> 
-    if any (\e -> e `isLinkTo` b) es
-    -- Replace the old edge with the new one
-    then 
-      let e' = E a b d
-          es' = [if similarEdge e e' then e' else e |e <- es]
-          m'  = M.insert a es' m
-        in G vs m'
-    -- Add a new edge
-    else
-      let es' = (E a b d):es
-          m'  = M.insert a es' m
-        in G vs m'
-
-isLinkTo :: Eq v => E v -> v -> Bool
-isLinkTo NE _ = False
-isLinkTo (E a b _) a' = a == a'
 
 mapG :: (v -> v') -> G v -> G v'
 mapG f (G n m) = 
@@ -89,6 +65,10 @@ pureG v = G n m
     m  = M.singleton v []
 
 flatMapG :: G v -> (v -> G v') -> G v'
-flatMapG (G n m) f = error "TAOTODO:"
+flatMapG _ _ = error "TAOTODO:"
+-- flatMapG (G n m) f = G nf' mf' 
+--   where n'  = [ | n <- M.toList n ]
+--         nf' = ???
+--         mf' = ???
 
 

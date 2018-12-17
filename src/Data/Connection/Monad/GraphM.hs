@@ -1,6 +1,6 @@
 module Data.Connection.Monad.GraphM where
 
-import Data.Connection.Base.Graph(G, E, V, mapG, pureG)
+import Data.Connection.Base.Graph(G, E, V, mapG, pureG, apG, flatMapG)
 
 -- Graph is mappable
 instance Functor G where
@@ -11,4 +11,5 @@ instance Applicative G where
 
 -- Graph is flatmappable
 instance Monad G where
-  (>>=) = error "TAOTODO:"
+  return = pureG
+  (>>=) = flatMapG

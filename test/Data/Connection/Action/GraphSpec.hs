@@ -20,6 +20,9 @@ main = hspec spec
 g3 :: G String 
 g3 = pure "3" <+> pure "4" <+> pure "5"
 
+g3' :: G String 
+g3' = 
+
 nodes :: G v -> [v]
 nodes (G vs m) = Map.keys m
 
