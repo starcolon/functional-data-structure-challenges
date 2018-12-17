@@ -1,7 +1,7 @@
 module Data.Connection.Base.Graph where
 
-import qualified Data.Map as M
 import qualified Data.Set as S
+import qualified Data.Map as M
 
 -- Graph of type [v] implements Vertices of type [v]
 
@@ -29,40 +29,47 @@ fv f v = case v of
   where 
     keys = S.fromList $ (M.keys va) ++ (M.keys vb)
 
+-- Apply a function to the vertex
+(<**>) :: V v -> (v -> v') -> V v'
+(<**>) NV _ = NV
+(<**>) (V a d m) f = V (f a) d m'
+  where
+    --m' = M.mapKeys f m
+    m' = M.fromDistinctAscList $ [(f b,w) | (b,w) <- M.toList m]
+
 -- Blend the specified vertex from the two maps
 blendVertices :: Ord v => v -> M.Map v (V v) -> M.Map v (V v) -> V v
 blendVertices a ma mb = case (M.lookup a ma, M.lookup a mb) of 
   (Nothing, Nothing) -> NV
-  (Nothing, v) -> v
-  (v, Nothing) -> v
+  (Nothing, Just v) -> v
+  (Just v, Nothing) -> v
   -- NOTE: following v1,d1 and v2,d2 are identical in all possible cases
-  (Just V v1 d1 m1, Just v2 d2 m2) -> V v1 d1 (M.union m1 m2)
+  (Just (V v1 d1 m1), Just (V _ _ m2)) -> V v1 d1 (M.union m1 m2)
 
 has :: Ord v => G v -> v -> Bool
-has (G n m) v = M.member v m
+has (G n) v = M.member v n
 
 ensureVertex :: Ord v => V v -> G v -> G v
 ensureVertex NV g = g
-ensureVertex (V a d) (G n m) = case M.lookup a m of
-  Nothing -> G n' m' 
+ensureVertex (V a d m) (G n) = case M.lookup a n of
+  Nothing -> G n' 
     where 
-      v' = V a d
+      v' = V a d m
       n' = M.insert a v' n
-      m' = M.insert a [] m
-  Just _ -> G n m
+  Just _ -> G n
 
 mapG :: (v -> v') -> G v -> G v'
-mapG f (G n m) = 
-  let n' = M.fromDistinctAscList $ [(f a, V (f a') d) | (a,V a' d) <- M.toList n]
-      m' = M.fromDistinctAscList $ [(f a, [fe f b | b <- bs]) | (a,bs) <- M.toList m]
-  in G n' m'
+mapG f (G n) = 
+  let n' = M.fromDistinctAscList $ [(f a, v <**> f) | (a,v) <- M.toList n]
+  in G n'
 
 -- Create a unit graph with an initial vertex
 pureG :: v -> G v
-pureG v = G n m
-  where 
-    n = M.singleton v (V v 1)
-    m  = M.singleton v []
+pureG v = G (M.singleton v (pureV v))    
+
+-- Create a unit vertex
+pureV :: v -> V v
+pureV v = V v 1 M.empty
 
 flatMapG :: G v -> (v -> G v') -> G v'
 flatMapG _ _ = error "TAOTODO:"
