@@ -13,7 +13,22 @@ size :: Ord v => G v -> Int
 size (G n) = case n of
   NullG   -> 0
   V _ _ _ -> 1
-  G m     -> foldr (+) 0 [size b | (a,b) <- M.toList m]
+  G m     -> Prelude.foldr $ (+) 0 [size b | (a,b) <- M.toList m]
+
+coreMaybe :: Ord v => G v -> Maybe (v, Double, E v)
+coreMaybe NullG = Nothing
+coreMaybe (V v d e) = Just ((v,d,e))
+coreMaybe (G m) = 
+  let (v,g) = head $ M.toList m
+    in case g of 
+      NullG   -> Nothing 
+      V u d e -> Just ((u,d,e))
+      G q     -> coreMaybe $ G q
+
+iter :: G v -> [(v, Double, E v)]
+iter NullG = []
+iter (V v d e) = [(v, d, e)]
+iter (G m) = Prelude.foldr $ (++) [] [iter g | (v,g) <- M.toList m]
 
 -- Associativity of vertex
 -- f (V v) = V (f v)
@@ -32,16 +47,24 @@ foldG a:b:bs = foldG $ (a <+> b):bs
 
 -- Join two graphs
 (<+>) :: Ord v => G v -> G v -> G v
-(<+>) (G va) (G vb) = G (M.fromDistinctAscList $ [(v, blendVertices v va vb) | v <- S.toList keys])
-  where 
-    keys = S.fromList $ (M.keys va) ++ (M.keys vb)
+(<+>) NullG n = n
+(<+>) n NullG = n
+(<+>) (V v1 d1 e1) (V v2 d2 e2) = G (M.fromDistinctAscList [(v1, V v1 d1 e1), (v2, V v2 d2 e2)])
+(<+>) (V v d e) (G m) = G (M.insert $ v (V v d e) m)
+(<+>) (G m) (V v d e) = (V v d e) <+> (G m)
+(<+>) (G m1) (G m2) = G (M.union m1 m2)
+
+-- Join two graphs
+-- (<+>) :: Ord v => G v -> G v -> G v
+-- (<+>) (G va) (G vb) = G (M.fromDistinctAscList $ [(v, blendVertices v va vb) | v <- S.toList keys])
+--   where 
+--     keys = S.fromList $ (M.keys va) ++ (M.keys vb)
 
 -- Apply a function to the vertex
 (<**>) :: V v -> (v -> v') -> V v'
 (<**>) NV _ = NV
 (<**>) (V a d m) f = V (f a) d m'
   where
-    --m' = M.mapKeys f m
     m' = M.fromDistinctAscList $ [(f b,w) | (b,w) <- M.toList m]
 
 -- Blend the specified vertex from the two maps
