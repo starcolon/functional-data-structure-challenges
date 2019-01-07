@@ -1,13 +1,13 @@
 module Data.Connection.Monad.GraphM where
 
-import Data.Connection.Base.Graph(G, V, mapG, pureG, flatMapG)
+import Data.Connection.Base.Graph(G, V, mapG, unitG, flatMapG)
 
 -- Graph is mappable
 instance Functor G where
   fmap = mapG
 
 instance Applicative G where
-  pure = pureG
+  pure = unitG
 
 -- Graph is flatmappable
 instance Monad G where
