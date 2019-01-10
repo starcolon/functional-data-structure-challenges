@@ -5,9 +5,10 @@ import qualified Data.Map as M
 
 -- Graph is a composition of nodes or graphs itself
 type E v = M.Map v Double
-data G v = NullG | 
-          V v Double (E v) | 
-          G (M.Map v (G v)) deriving (Show,Eq)
+data G v 
+  = NullG 
+  | V v Double (E v)
+  | G (M.Map v (G v)) deriving (Show,Eq)
 
 size :: Ord v => G v -> Int
 size g = case g of
@@ -70,5 +71,9 @@ unitG :: v -> G v
 unitG v = V v 1 M.empty
 
 flatMapG :: G v -> (v -> G v') -> G v'
-flatMapG g f = foldG [V (f v) d (applyE f e) | (v,d,e) <- iter g]
+flatMapG g f = ???
+  where
+    gs = [(v,e) | (v,d,e) <- iter g]
+
+
 
