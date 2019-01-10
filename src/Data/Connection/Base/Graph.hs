@@ -1,10 +1,10 @@
 module Data.Connection.Base.Graph where
 
 import qualified Data.Set as S
-import qualified Data.Map as M hiding (foldr) 
+import qualified Data.Map as M
 
 -- Graph is a composition of nodes or graphs itself
-newtype E v = M.Map v Double
+data E v = M.Map v Double deriving (Show,Eq)
 data G v = NullG | 
           V v Double (E v) | 
           G (M.Map v (G v)) deriving (Show,Eq)
@@ -69,6 +69,5 @@ unitG :: v -> G v
 unitG v = V v 1 M.empty
 
 flatMapG :: G v -> (v -> G v') -> G v'
-flatMapG (G m) f = ???
-
+flatMapG g f = foldG [(f v,d,applyE f e) | (v,d,e) <- iter $ g]
 
