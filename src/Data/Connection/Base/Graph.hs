@@ -70,10 +70,10 @@ pureG (v,d,e) = V v d e
 unitG :: v -> G v
 unitG v = V v 1 M.empty
 
-flatMapG :: G v -> (v -> G v') -> G v'
-flatMapG g f = ???
+flatMapG :: (Ord v, Ord v') => G v -> (v -> G v') -> G v'
+flatMapG g f = foldG gs -- TAOTODO: to rewrite this
   where
-    gs = [(v,e) | (v,d,e) <- iter g]
+    (gs,es) = unzip [(f v,e) | (v,d,e) <- iter g]
 
 
 
