@@ -32,14 +32,14 @@ iter (V v d e) = [(v, d, e)]
 iter (G m) = Prelude.foldr (++) [] [iter g | (v,g) <- M.toList m]
 
 -- Fold multiple graphs into one
-foldG :: Ord v => [G v] -> G v
+foldG :: [G v] -> G v
 foldG [] = error "Unable to fold empty list of graphs"
 foldG (n:[]) = n
 foldG (a:b:bs) = foldG (h':bs)
   where h' = (a <+> b)
 
 -- Join two graphs
-(<+>) :: Ord v => G v -> G v -> G v
+(<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
 (<+>) (V v1 d1 e1) (V v2 d2 e2) = G (M.fromDistinctAscList [(v1, V v1 d1 e1), (v2, V v2 d2 e2)])
@@ -56,7 +56,7 @@ has (G n) v = any pred gs
 applyE :: (v -> v') -> E v -> E v'
 applyE f m = M.fromDistinctAscList [(f v,d) | (v,d) <- M.toList m]
 
-mapG :: (Ord v, Ord v') => (v -> v') -> G v -> G v'
+mapG :: (v -> v') -> G v -> G v'
 mapG f NullG = NullG
 mapG f (V v d e) = V (f v) d (applyE f e)
 mapG f (G m) = foldG gs
@@ -69,11 +69,6 @@ pureG (v,d,e) = V v d e
 -- Create a unit graph with an initial vertex
 unitG :: v -> G v
 unitG v = V v 1 M.empty
-
-flatMapG :: (Ord v, Ord v') => G v -> (v -> G v') -> G v'
-flatMapG g f = foldG gs -- TAOTODO: to rewrite this
-  where
-    (gs,es) = unzip [(f v,e) | (v,d,e) <- iter g]
 
 
 
