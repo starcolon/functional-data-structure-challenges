@@ -42,9 +42,9 @@ foldG (a:b:bs) = foldG (h':bs)
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
-(<+>) (V v1 d1 e1) (V v2 d2 e2) = G (M.fromDistinctAscList [(v1, V v1 d1 e1), (v2, V v2 d2 e2)])
-(<+>) (V v d e) (G m) = G (M.insert v (V v d e) m)
-(<+>) (G m) (V v d e) = (V v d e) <+> (G m)
+(<+>) v1@(V a _ _) v2@(V b _ _) = G (M.fromDistinctAscList [(a, v1), (b, v2)])
+(<+>) v@(V a _ _) (G m) = G (M.insert a v m)
+(<+>) (G m) v@(V _ _ _) = v <+> (G m)
 (<+>) (G m1) (G m2) = G (M.union m1 m2)
 
 has :: Ord v => G v -> v -> Bool
