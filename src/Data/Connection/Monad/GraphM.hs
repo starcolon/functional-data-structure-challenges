@@ -4,8 +4,7 @@ import Data.Connection.Base.Graph(
   G,
   pureG,
   mapG,
-  unitG,
-  flatMapG)
+  unitG)
 
 -- Graph is mappable
 instance Functor G where

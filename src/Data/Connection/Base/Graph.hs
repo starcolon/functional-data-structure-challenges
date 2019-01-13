@@ -5,23 +5,23 @@ import qualified Data.Map as M
 import qualified Data.List as L
 
 -- Leave nodes of graph can be another graph or a vertex
-type E v = M.Map v Double
+type E v = [(v, Double)]
 data G v 
   = NullG 
   | V v Double (E v)
-  | G (M.Map v (G v)) deriving (Show,Eq)
+  | G [(v,G v)] deriving (Show,Eq)
 
 size :: Ord v => G v -> Int
 size g = case g of
   NullG   -> 0
   V _ _ _ -> 1
-  G m     -> Prelude.foldr (+) 0 [size b | (a,b) <- M.toList m]
+  G m     -> Prelude.foldr (+) 0 [size b | (a,b) <- m]
 
 coreMaybe :: Ord v => G v -> Maybe (v, Double, E v)
 coreMaybe NullG = Nothing
 coreMaybe (V v d e) = Just ((v,d,e))
 coreMaybe (G m) = 
-  let (v,g) = head $ M.toList m
+  let (v,g) = head m
     in case g of 
       NullG   -> Nothing 
       V u d e -> Just ((u,d,e))
@@ -30,7 +30,7 @@ coreMaybe (G m) =
 iter :: G v -> [(v, Double, E v)]
 iter NullG = []
 iter (V v d e) = [(v, d, e)]
-iter (G m) = Prelude.foldr (++) [] [iter g | (v,g) <- M.toList m]
+iter (G m) = Prelude.foldr (++) [] [iter g | (v,g) <- m]
 
 -- Fold multiple graphs into one
 foldG :: [G v] -> G v
@@ -51,25 +51,30 @@ addOrReplace a v (b:bs) = case snd b of
   G _ -> b:(addOrReplace a v bs)
   NullG -> b:(addOrReplace a v bs)
 
+unionList :: [(a,G a)] -> [(a,G a)] -> [(a,G a)]
+unionList ns [] = ns
+unionList (n:ns) ms = 
+  let (a,n') = n 
+    in unionList ns (addOrReplace a n' ms)
+
 -- add or replace a vertex in a graph
 -- the first argument is a new vertex to add 
 setVertex :: G v -> G v -> G v
 setVertex v g@(G m) = case v of 
   NullG -> g
-  g'@(G m') -> G (M.union m m')
+  g'@(G m') -> G (unionList m m')
   v@(V a _ _) -> 
-    let gs  = M.toList m
-        gs' = addOrReplace a v gs'
-      in G (M.fromDistinctAscList gs')
+    let gs' = addOrReplace a v m
+      in G gs'
 
 -- Join two graphs
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
-(<+>) v1@(V a _ _) v2@(V b _ _) = G (M.fromDistinctAscList [(a, v1), (b, v2)])
-(<+>) v@(V a _ _) (G m) = G (M.fromDistinctAscList (addOrReplace a v (M.toList m)))
+(<+>) v1@(V a _ _) v2@(V b _ _) = G [(a, v1), (b, v2)]
+(<+>) v@(V a _ _) (G m) = G (addOrReplace a v m)
 (<+>) (G m) v@(V _ _ _) = v <+> (G m)
-(<+>) (G m1) (G m2) = G (M.union m1 m2)
+(<+>) (G m1) (G m2) = G (unionList m1 m2)
 
 has :: Ord v => G v -> v -> Bool
 has (G n) v = any pred gs
@@ -78,7 +83,7 @@ has (G n) v = any pred gs
     gs = iter $ G n
 
 applyE :: (v -> v') -> E v -> E v'
-applyE f m = M.fromDistinctAscList [(f v,d) | (v,d) <- M.toList m]
+applyE f m = [(f v,d) | (v,d) <- m]
 
 mapG :: (v -> v') -> G v -> G v'
 mapG f NullG = NullG
@@ -92,7 +97,7 @@ pureG (v,d,e) = V v d e
 
 -- Create a unit graph with an initial vertex
 unitG :: v -> G v
-unitG v = V v 1 M.empty
+unitG v = V v 1 []
 
 
 
