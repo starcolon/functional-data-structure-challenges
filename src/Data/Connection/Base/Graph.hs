@@ -2,8 +2,9 @@ module Data.Connection.Base.Graph where
 
 import qualified Data.Set as S
 import qualified Data.Map as M
+import qualified Data.List as L
 
--- Graph is a composition of nodes or graphs itself
+-- Leave nodes of graph can be another graph or a vertex
 type E v = M.Map v Double
 data G v 
   = NullG 
@@ -38,12 +39,35 @@ foldG (n:[]) = n
 foldG (a:b:bs) = foldG (h':bs)
   where h' = (a <+> b)
 
+-- Given a list of pairs of (a,G a)
+-- add a new (a, G a) to it
+-- or update the existing one if already does
+addOrReplace :: a -> G a -> [(a,G a)] -> [(a,G a)]
+addOrReplace a v [] = [(a,v)]
+addOrReplace a v (b:bs) = case snd b of 
+  V a' _ _ -> case a' of 
+    a -> ((a,v)):bs -- replace the old vertex
+    _ -> b:(addOrReplace a v bs)
+  G _ -> b:(addOrReplace a v bs)
+  NullG -> b:(addOrReplace a v bs)
+
+-- add or replace a vertex in a graph
+-- the first argument is a new vertex to add 
+setVertex :: G v -> G v -> G v
+setVertex v g@(G m) = case v of 
+  NullG -> g
+  g'@(G m') -> G (M.union m m')
+  v@(V a _ _) -> 
+    let gs  = M.toList m
+        gs' = addOrReplace a v gs'
+      in G (M.fromDistinctAscList gs')
+
 -- Join two graphs
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
 (<+>) v1@(V a _ _) v2@(V b _ _) = G (M.fromDistinctAscList [(a, v1), (b, v2)])
-(<+>) v@(V a _ _) (G m) = G (M.insert a v m)
+(<+>) v@(V a _ _) (G m) = G (M.fromDistinctAscList (addOrReplace a v (M.toList m)))
 (<+>) (G m) v@(V _ _ _) = v <+> (G m)
 (<+>) (G m1) (G m2) = G (M.union m1 m2)
 
