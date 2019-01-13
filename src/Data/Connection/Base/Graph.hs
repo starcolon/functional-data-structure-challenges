@@ -76,6 +76,27 @@ setVertex v g@(G m) = case v of
 (<+>) (G m) v@(V _ _ _) = v <+> (G m)
 (<+>) (G m1) (G m2) = G (unionList m1 m2)
 
+getFromList :: v -> [(v,G v)] -> Maybe (G v)
+getFromList v [] = Nothing
+getFromList v (a:bs) = case fst a of 
+  v -> case snd a of 
+    NullG -> getFromList v bs
+    g@(G m) -> case getFromList v m of
+      Nothing -> getFromList v bs
+      Just v' -> Just v'
+    x@(V c _ _) -> case c of 
+      v -> Just x
+      _ -> Nothing
+  _ -> getFromList v bs
+
+get :: v -> G v -> Maybe (G v)
+get v g = case g of 
+  NullG       -> Nothing
+  v@(V a _ _) -> case a of 
+    v -> Just g
+    _ -> Nothing
+  g'@(G m)    -> getFromList v m
+
 has :: Ord v => G v -> v -> Bool
 has (G n) v = any pred gs
   where
