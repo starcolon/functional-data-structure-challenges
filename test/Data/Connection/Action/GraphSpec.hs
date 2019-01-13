@@ -7,7 +7,7 @@ import Data.Connection.Base.Graph(
   G,G(G),
   V,V(V),V(NV),
   E,E(E),E(NE),
-  size, (<+>), has)
+  size, (<+>), has, newG)
 import Data.Connection.Monad.GraphM
 import Prelude hiding (min, max)
 import Data.Maybe(fromJust)
@@ -21,7 +21,7 @@ g3 :: G String
 g3 = pure "3" <+> pure "4" <+> pure "5"
 
 g3' :: G String 
-g3' = 
+g3' = g3 
 
 nodes :: G v -> [v]
 nodes (G vs m) = Map.keys m
