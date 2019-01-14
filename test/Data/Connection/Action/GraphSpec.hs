@@ -4,10 +4,8 @@ import Test.Hspec
 import Test.QuickCheck()
 import Data.Maybe()
 import Data.Connection.Base.Graph(
-  G,G(G),
-  V,V(V),V(NV),
-  E,E(E),E(NE),
-  size, (<+>), has, newG)
+  E, G, G(NullG), G(V), G(G),
+  size, (<+>), (~:~), has, newG)
 import Data.Connection.Monad.GraphM
 import Prelude hiding (min, max)
 import Data.Maybe(fromJust)
@@ -21,7 +19,7 @@ g3 :: G String
 g3 = pure "3" <+> pure "4" <+> pure "5"
 
 g3' :: G String 
-g3' = g3 
+g3' = ((g3 ~:~ ("3",1.0,"4")) ~:~ ("3",2.5,"5")) ~:~ ("4",1.5,"5")
 
 nodes :: G v -> [v]
 nodes (G vs m) = Map.keys m

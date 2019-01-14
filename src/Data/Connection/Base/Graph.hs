@@ -91,6 +91,10 @@ setEdge a w b g = case g of
     a -> V a d (addE a w e)
     _ -> g
 
+-- Just a synnonym of 'setEdge' with different order of arguments
+(~:~) :: G v -> (v,Double,v) -> G v
+(~:~) g (a,w,b) = setEdge a w b g
+
 -- Join two graphs
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
