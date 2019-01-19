@@ -32,24 +32,31 @@ iter NullG = []
 iter (V v d e) = [(v, d, e)]
 iter (G m) = Prelude.foldr (++) [] [iter g | (v,g) <- m]
 
+nodes :: G v -> [v]
+nodes NullG = []
+nodes v@(V a _ _) = [a]
+nodes (G m) = Prelude.foldr (++) [] [nodes g | (a,g) <- m]
+
+edges :: v -> G v -> [E v]
+edges v g = error "TAOTODO:"
+
 -- Fold multiple graphs into one
 foldG :: [G v] -> G v
 foldG [] = error "Unable to fold empty list of graphs"
 foldG (n:[]) = n
-foldG (a:b:bs) = foldG (h':bs)
-  where h' = (a <+> b)
+foldG (a:b:bs) = foldG ((a <+> b):bs)
 
 -- Given a list of pairs of (a,G a)
 -- add a new (a, G a) to it
 -- or update the existing one if already does
 addOrReplaceG :: a -> G a -> [(a,G a)] -> [(a,G a)]
 addOrReplaceG a v [] = [(a,v)]
-addOrReplaceG a v (b:bs) = case snd b of 
-  V a' _ _ -> case a' of 
-    a -> ((a,v)):bs -- replace the old vertex
-    _ -> b:(addOrReplaceG a v bs)
-  G _ -> b:(addOrReplaceG a v bs)
-  NullG -> b:(addOrReplaceG a v bs)
+addOrReplaceG a v (b:bs) = case fst b of 
+  a -> ((a,v)):bs -- replace the existing graph
+  _ -> case snd b of 
+    V a' _ _ -> b:(addOrReplaceG a v bs)
+    g@(G m)  -> (addOrReplaceG a v m) ++ (addOrReplaceG a v bs)
+    NullG    -> b:(addOrReplaceG a v bs)
 
 -- Add a new edge to the list of graph
 addOrReplaceE :: a -> Double -> a -> [(a,G a)] -> [(a,G a)]
@@ -92,17 +99,17 @@ setEdge a w b g = case g of
     _ -> g
 
 -- Just a synnonym of 'setEdge' with different order of arguments
-(~:~) :: G v -> (v,Double,v) -> G v
-(~:~) g (a,w,b) = setEdge a w b g
+(<:>) :: (v,Double,v) -> G v -> G v
+(<:>) (a,w,b) g = setEdge a w b g
 
 -- Join two graphs
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
 (<+>) v1@(V a _ _) v2@(V b _ _) = G [(a, v1), (b, v2)]
-(<+>) v@(V a _ _) (G m) = G (addOrReplaceG a v m)
-(<+>) (G m) v@(V _ _ _) = v <+> (G m)
-(<+>) (G m1) (G m2) = G (unionList m1 m2)
+(<+>) v@(V a _ _) (G m)         = G (addOrReplaceG a v m)
+(<+>) (G m) v@(V _ _ _)         = v <+> (G m)
+(<+>) (G m1) (G m2)             = G (unionList m1 m2)
 
 getFromList :: v -> [(v,G v)] -> Maybe (G v)
 getFromList v [] = Nothing
@@ -125,8 +132,8 @@ get v g = case g of
     _ -> Nothing
   g'@(G m)    -> getFromList v m
 
-has :: v -> G v -> Bool
-has v g = case get v g of
+isin :: v -> G v -> Bool
+isin v g = case get v g of
   Nothing -> False
   Just _  -> True
 
