@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Data.Connection.Base.Graph where
 
 import qualified Data.Set as S
@@ -9,7 +11,7 @@ type E v = [(v, Double)]
 data G v 
   = NullG 
   | V v Double (E v)
-  | G [(v,G v)] deriving (Show,Eq)
+  | G [(v,G v)] deriving (Show)
 
 size :: Ord v => G v -> Int
 size g = case g of
@@ -52,7 +54,8 @@ foldG (a:b:bs) = foldG ((a <+> b):bs)
 addOrReplaceG :: a -> G a -> [(a,G a)] -> [(a,G a)]
 addOrReplaceG a v [] = [(a,v)]
 addOrReplaceG a v (b:bs) = case fst b of 
-  a -> ((a,v)):bs -- replace the existing graph
+  -- TAOTODO: always match b with a ----- WRONG!
+  a -> b:bs -- TAOTODO: ((a,v)):bs -- replace the existing graph
   _ -> case snd b of 
     V a' _ _ -> b:(addOrReplaceG a v bs)
     g@(G m)  -> (addOrReplaceG a v m) ++ (addOrReplaceG a v bs)
@@ -106,10 +109,10 @@ setEdge a w b g = case g of
 (<+>) :: G v -> G v -> G v
 (<+>) NullG n = n
 (<+>) n NullG = n
-(<+>) v1@(V a _ _) v2@(V b _ _) = G [(a, v1), (b, v2)]
 (<+>) v@(V a _ _) (G m)         = G (addOrReplaceG a v m)
-(<+>) (G m) v@(V _ _ _)         = v <+> (G m)
+(<+>) (G m) v@(V a _ _)         = G (addOrReplaceG a v m)
 (<+>) (G m1) (G m2)             = G (unionList m1 m2)
+(<+>) v1@(V a _ _) v2@(V b _ _) = G [(a, v1), (b, v2)]
 
 getFromList :: v -> [(v,G v)] -> Maybe (G v)
 getFromList v [] = Nothing
